@@ -30,12 +30,12 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: ./ei/cipx/*.cipx  # 明确指定文件扩展名
+          path: ./ExtraIsland/cipx/*.cipx  # 明确指定文件扩展名
       
       - name: Upload APP to release
         uses: ncipollo/release-action@v1
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         with:
-          artifacts: "./ei/cipx/*.cipx"  # 修正文件扩展名
+          artifacts: "./ExtraIsland/cipx/*.cipx"  # 修正文件扩展名
           token: ${{ secrets.GITHUB_TOKEN }}  # 显式传递Token
           draft: true
