@@ -1,12 +1,15 @@
 ﻿using System.Text.Json.Serialization;
+using ClassIsland.Core.Controls;
+using ClassIsland.Core.Controls.CommonDialog;
 using ExtraIsland.Shared;
+using MaterialDesignThemes.Wpf;
 
 namespace ExtraIsland.Components;
 
 // ReSharper disable once ClassNeverInstantiated.Global
 public class RhesisConfig {
-    public RhesisDataSource DataSource { get; set; } = RhesisDataSource.All;
-    
+    public RhesisDataSource DataSource { get; set; } = RhesisDataSource.SaintJinrishici;
+
     public string IgnoreListString { get; set; } = string.Empty;
     
     public string HitokotoProp  { get; set; } = string.Empty;
@@ -42,4 +45,6 @@ public class RhesisConfig {
     public bool IsAuthorShowEnabled { get; set; }
 
     public bool IsTitleShowEnabled { get; set; }
+    
+    public bool IsHitokotoWarnConfirmed { get; set; }
 }

@@ -34,7 +34,11 @@ public partial class MainSettingsPage {
             //((Chip)LyricsStatCard.Switcher!).Foreground = Brushes.DarkSlateGray;
             ((Chip)LyricsStatCard.Switcher!).Background = Brushes.Gray;
             ((Chip)LyricsStatCard.Switcher!).Content = "未使用";
-        } else if (GlobalConstants.Handlers.LyricsIsland == null) {
+        } else if (EiUtils.IsPluginInstalled("ink.lipoly.ext.lychee")) {
+            ((Chip)LyricsStatCard.Switcher!).Background = Brushes.Gray;
+            ((Chip)LyricsStatCard.Switcher!).Content = "Lychee";
+        }
+        else if (GlobalConstants.Handlers.LyricsIsland == null) {
             ((Chip)LyricsStatCard.Switcher!).Background = Brushes.Gray;
             ((Chip)LyricsStatCard.Switcher!).Content = "未使用";
         } else {
@@ -231,8 +235,8 @@ public partial class MainSettingsPage {
                                       
                                       当前这些功能还处于早期开发阶段
                                       存在不少已知Bug        （；´д｀）ゞ
-                                      考虑到接下来 ExtraIsland 将暂时停止开发
-                                      故将这些功能在正式版中给出 (至少能用不是吗 (●'◡'●) )
+                                      考虑到部分功能有用户仍在使用
+                                      故将本选项在正式版中继续保留 (至少能用不是吗 (●'◡'●) )
                                       若使用这些功能的时候遇到问题,请勿到仓库提交Bug!
                                       """
                         },

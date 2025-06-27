@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Text.RegularExpressions;
+using System.Windows;
 using System.Windows.Media;
 using ClassIsland.Core.Abstractions.Services;
 using ClassIsland.Core.Attributes;
@@ -30,7 +31,7 @@ public partial class LiveActivity {
     readonly Animators.EmphasizeUiElementAnimator _activityAnimator;
     readonly Animators.EmphasizeUiElementAnimator _lyricsAnimator;
     readonly Animators.ClockTransformControlAnimator _lyricsLabelAnimator;
-    LyricsIslandHandler? _lyricsHandler;
+    ILyricsProvider? _lyricsHandler;
     string _postName = string.Empty;
 
     bool IsLyricsIslandLoaded { get; }
@@ -45,7 +46,9 @@ public partial class LiveActivity {
                 ? Brushes.DeepSkyBlue
                 : Brushes.LightGreen;
             string? title = WindowsUtils.GetActiveWindowTitle();
-            if (Settings.IgnoreList.Contains(title)) title = null;
+            title ??= "";
+            title = Replacer(title,Settings.ReplacementsList);
+            title = title == "" ? null : title;
             if (title == null & (!Settings.IsLyricsEnabled | _timeCounter <= 0)) {
                 CardChip.Visibility = Visibility.Collapsed;
             } else {
@@ -72,6 +75,21 @@ public partial class LiveActivity {
         });
     }
 
+    string Replacer(string input, IEnumerable<ReplaceItem> replaceList) {
+        foreach (ReplaceItem kvp in replaceList) {
+            try {
+                Regex regex = new Regex(kvp.Regex);
+                if (regex.IsMatch(input)) {
+                    return regex.Replace(input,kvp.Replacement);
+                }
+            }
+            catch {
+                //ignored
+            }
+        }
+        return input;
+    }
+    
     void UpdateMargin() {
         this.BeginInvoke(() => {
             CardChip.Margin = new Thickness {
@@ -89,8 +107,12 @@ public partial class LiveActivity {
             return;
         }
         if (Settings.IsLyricsEnabled) {
-            GlobalConstants.Handlers.LyricsIsland ??= new LyricsIslandHandler();
-            _lyricsHandler = GlobalConstants.Handlers.LyricsIsland;
+            if (EiUtils.IsPluginInstalled("ink.lipoly.ext.lychee")) {
+                _lyricsHandler = new LycheeLyricsProvider();
+            } else {
+                GlobalConstants.Handlers.LyricsIsland ??= new LyricsIslandHandler();
+                _lyricsHandler = GlobalConstants.Handlers.LyricsIsland;   
+            }
             _lyricsHandler.OnLyricsChanged += UpdateLyrics;
             new Thread(() => {
                 while (true) {
@@ -143,6 +165,25 @@ public partial class LiveActivity {
     }
 
     void LiveActivity_OnLoaded(object sender,RoutedEventArgs e) {
+        //配置迁移
+        if (Settings.IgnoreListString != string.Empty) {
+            string[] oldList;
+            try {
+                oldList = Settings.IgnoreListString.Split("\r\n");
+            }
+            catch (Exception ex) {
+                Console.WriteLine(ex);
+                oldList = [];
+            }
+            foreach (string item in oldList) {
+                Settings.ReplacementsList.Add(new ReplaceItem {
+                    Regex = $"^{Regex.Escape(item)}$",
+                    Replacement = string.Empty
+                });
+            }
+            Settings.IgnoreListString = string.Empty;
+        }
+        
         if (!GlobalConstants.Handlers.MainConfig!.Data.IsLifeModeActivated) {
             Settings.IsSleepyUploaderEnabled = false;
         }
